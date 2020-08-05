@@ -1,0 +1,27 @@
+
+ <%- include('includes/header')%>
+ <!-- include header file here -->
+  
+  <div class="container py-md-5 container--narrow">
+    <%- include('includes/flash')%>
+    <% if (posts.length) { %>
+      <h2 class="text-center mb-4">Lo Más Reciente De Tus Cuentas Preferidas</h2>
+      <div class="list-group">
+        <% posts.forEach(function(post) { %>
+          <a href="/post/<%= post._id %>" class="list-group-item list-group-item-action">
+            <img class="avatar-tiny" src="<%= post.author.avatar %>">
+            <strong><%= post.title %></strong> <span class="text-muted small">por <%= post.author.username%> en <%= post.creationDate.getMonth()+1%>/<%= post.creationDate.getDate()%>/<%=post.creationDate.getFullYear()%></span>
+          </a>
+          <%
+        })%>
+      </div>
+    <% } else{ %>
+      <div class="text-center">
+        <h2>Hola <strong><%= user.username %></strong>, tu feed está vacío.</h2>
+        <p class="lead text-muted">Tu feed muestra los posts más recientes de las personas que sigues. Si no tienes amigos que seguir no te preocupes; puedes usar la función de &ldquo;Busqueda&rdquo; en el menú superior para encontrar contenido escrito por usuarios con intereses similares y seguirlos.</p>
+      </div>  
+    <%}%>
+  </div>
+  
+  <!-- footer begins -->
+  <%- include('includes/footer')%>
