@@ -22,7 +22,7 @@ exports.submitPost = function(req, res) {
 exports.viewSingle = async function(req, res){
     try {
         let singlePost = await Post.findById(req.params.id, req.visitorId);
-        res.render('single-post-screen', {post: singlePost}); // the post variable is the document found by the database and sent to us by resolve(post)
+        res.render('single-post-screen', {post: singlePost, title: singlePost.title}); // the post variable is the document found by the database and sent to us by resolve(post)
     }catch {
         res.render('404');
     };

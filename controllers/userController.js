@@ -104,6 +104,7 @@ exports.viewProfilePosts = function(req, res) {
     Post.findByAuthorId(req.profileUser._id).then(function(posts) {     // findAuthor has to return a promise, async action
         // after finding posts we can render
         res.render('profile', {
+            title: `Perfil de ${req.profileUser.username}`,
             currentPage: 'posts',
             postsByAuthor: posts,
             profileUsername: req.profileUser.username,

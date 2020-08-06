@@ -5,6 +5,7 @@ const MongoStore = require('connect-mongo')(session); //what is this syntax?
 const flash = require('connect-flash');
 const markdown = require('marked');
 const sanitizeHTML = require('sanitize-html');
+const { sanitize } = require('dompurify');
 const app = express();
 
 
@@ -56,10 +57,26 @@ const server = require('http').createServer(app);
 
 const io = require('socket.io')(server);
 
+//boilerplate code: integrate socket with express sessions
+io.use(function(socket, next) {
+    sessionOptions(socket.request, socket.request.res, next);
+})      // essentially, we make our express session data available within the context of socket.io
+
 io.on('connection', function(socket){
-    socket.on('chatMessageFromBrowser', function(data){
-        io.emit('chatMessageFromServer', {message: data.message});
-    })
+    if (socket.request.session.user) { //  if the browser has a logged in user
+        let user = socket.request.session.user;
+        
+        socket.emit('welcome', {username: user.username, avatar: user.avatar});
+        
+        socket.on('chatMessageFromBrowser', function(data){
+            socket.broadcast.emit('chatMessageFromServer', {
+                message: sanitizeHTML(data.message, {allowedTags: [], allowedAttributes: {}}), 
+                username: user.username, 
+                avatar: user.avatar
+            });     // is sent to EVERYONE including the browser who sent
+        })      
+        
+    }
 })
 
 module.exports = server;
