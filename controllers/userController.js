@@ -63,6 +63,17 @@ exports.login = function(req, res) {
     });
 }
 
+exports.apiLogin = function(req, res) {
+    let user = new User(req.body);
+    user.login().then(function(result){
+        // this next line sets what info is saved to the session
+        res.json("Buen trabajo, ingresaste un username y password.");
+    }).catch(function(error){
+        // when promise doesn't resolve and rejects this runs.
+        res.json("Lo siento, no pasas chavo");
+    });
+}
+
 exports.logout = function(req, res) {
     // built-in destroy method. Matches cuirrent cookie's session id with database session
     req.session.destroy(function() {
@@ -156,4 +167,17 @@ exports.viewProfileFollowings = async function(req, res) {
         console.log("Something happened: "+e);
         res.render('404');
     }
+}
+
+exports.doesUsernameExist = function(req, res) {
+    User.findByUsername(req.body.username).then(function() {
+        res.json(true);     // responds in json notation with a value of true
+    }).catch(function() {       // will run if no username was found
+        res.json(false);
+    })
+}
+
+exports.doesEmailExist = async function(req, res) {
+    let emailBool = await User.doesEmailExist(req.body.email);
+    res.json(emailBool);
 }

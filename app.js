@@ -5,9 +5,13 @@ const MongoStore = require('connect-mongo')(session); //what is this syntax?
 const flash = require('connect-flash');
 const markdown = require('marked');
 const sanitizeHTML = require('sanitize-html');
-const { sanitize } = require('dompurify');
+const csrf = require('csurf');
 const app = express();
 
+app.use(express.urlencoded({extended:false}));
+app.use(express.json());        // these two lines allow us to read json data
+
+app.use('/api', require('./router-api'));
 
 // boilerplate config for express http sessions
 let sessionOptions = session({
@@ -20,8 +24,6 @@ let sessionOptions = session({
 
 app.use(sessionOptions);
 app.use(flash());
-app.use(express.urlencoded({extended:false}));
-app.use(express.json());
 
 // for ALL requests, run this:
 app.use(function(req, res, next) {
@@ -51,7 +53,27 @@ app.use(express.static('public'));
 app.set('views','views');    // the first is an express option, the second is the name of folder
 app.set('view engine', 'ejs');
 
-app.use('/', router);
+app.use(csrf());        // creates a security token against csrf
+
+app.use(function(req, res, next) {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+})
+
+app.use('/', router);       // SET UP THE ROUTER FILE
+
+app.use(function(err, req, res, next) {
+    if (err) {
+        if (err.code == "EBADCSRFTOKEN"){       // error is related to invalid csrf token
+            req.flash('errors', "Cross-site request forgery detected.")
+            req.session.save(() => {
+                res.redirect('/');
+            })
+        } else {
+            res.render('404');
+        }
+    }
+})
 
 const server = require('http').createServer(app);
 

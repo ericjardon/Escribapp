@@ -49,7 +49,7 @@ exports.edit = function(req, res) {
         if (status=="success"){
             req.flash("success", "Los cambios se guardaron exitosamente.");
             req.session.save(function(){
-                res.redirect(`/post/${req.params.id}/edit`);
+                res.redirect(`/post/${req.params.id}`);
             })
         }else{
             // show red error rectangles with validation messages

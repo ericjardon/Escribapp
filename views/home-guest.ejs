@@ -8,7 +8,7 @@
     <div class="col-lg-7 py-3 py-md-5">
       <h1 class="display-3">¿Recuerdas Escribir?</h1>      
       <p class="lead text-muted">Estás cansado de los tweets cortos e impersonales, de los posts &ldquo;compartidos&rdquo; que recuerdan a los email de los 90&rsquo;s?
-        Creemos en que regresar a la verdadera escritura es la clave para disfrutar el internet de nuevo.</p>
+        Creemos en que la clave para disfrutar el internet de nuevo está en regresar a la escritura verdadera y significativa.</p>
     </div>
     <div class="col-lg-5 pl-lg-5 pb-3 py-lg-5">
       <form action="/register" method="POST" id="registration-form">
@@ -31,7 +31,7 @@
             <label for="password-register" class="text-muted mb-1"><small>Contraseña</small></label>
             <input name="password" id="password-register" class="form-control" type="password" placeholder="Crea tu contraseña">
           </div>
-          
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button type="submit" class="py-3 mt-4 btn btn-lg btn-success btn-block">Regístrate para EscribApp</button>
           
         </form>

@@ -137,4 +137,24 @@ User.findByUsername = function(username) {
     })
 }
 
+User.doesEmailExist = function(email) {
+    return new Promise(async (resolve, reject) => {
+        if (typeof(email) != "string"){
+            resolve(false);
+            return;
+        } 
+         
+        let user = await usersCollection.findOne({email: email});
+        if (user) {     // if it finds a user at all
+            console.log("Email exists")
+            resolve(true);
+        } else {
+            console.log("Email does not exist")
+            resolve(false);
+        }
+    })  // an observation: it is not possible by induction that there are two users with same email and db would find two.
+        // first because we are calling findONE. But chiefly because we are not letting users right from the beginning to register
+        // with an already existing email
+}
+
 module.exports = User;
