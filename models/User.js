@@ -111,6 +111,7 @@ User.prototype.getAvatar = function(){
 User.findByUsername = function(username) {
     return new Promise(async function(resolve, reject) {
         if (typeof(username) != "string") {
+            console.log("input username is not a string. reject")
             reject();
             return;
         }
@@ -118,7 +119,7 @@ User.findByUsername = function(username) {
             // resolves with the data it correctly found
             if (userDoc) {
                 // clean up the user! dont leak unnecesary info into the controller
-                userDoc = new User(userDoc, true);  // temporary instance a copy of the desired user, getting its Avatar
+                userDoc = new User(userDoc, true);  // instantiate to get the Avatar
                 userDoc = {
                     _id: userDoc.data._id,
                     username: userDoc.data.username,
@@ -127,11 +128,13 @@ User.findByUsername = function(username) {
                 }
                 resolve(userDoc);
             } else{
+                console.log("userDoc not found");
                 reject();
             }
-        }).catch(function() {
+        }).catch(function(err) {
             // reject corresponds to mongodb's findone method
             //this block runs if when mongodb encounters an unexpected error
+            console.log("In findByUsername: " + err)
             reject();
         });
     })

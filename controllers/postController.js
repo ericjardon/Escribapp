@@ -19,6 +19,16 @@ exports.submitPost = function(req, res) {
     });
 }
 
+exports.apiSubmitPost = function(req, res) {
+    let post = new Post(req.body, req.apiUser._id); 
+    console.log(req.body.title + ", " + req.body.body)
+    post.create().then(function(newPostId) {
+        res.json("Creación exitosa");
+    }).catch(function(errors) { 
+        res.json(errors)
+    });
+}
+
 exports.viewSingle = async function(req, res){
     try {
         let singlePost = await Post.findById(req.params.id, req.visitorId);
@@ -76,6 +86,14 @@ exports.delete = function(req, res) {
     }).catch(() => {
         req.flash("errors", "No es posible completar la acción: usuario no tiene permisos.");
         req.session.save(() => res.redirect('/')); 
+    });
+}
+
+exports.apiDelete = function(req, res) {
+    Post.delete(req.params.id, req.apiUser._id).then(() => {
+        res.json("Éxito al borrar post")
+    }).catch(() => {
+        res.json("Error: usuario no cuenta con los permisos para realizar esa acción.")
     });
 }
 

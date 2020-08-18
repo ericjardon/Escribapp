@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
 const Follow = require('../models/Follow');
+const jsontokens= require('jsonwebtoken');
 
 exports.userExists = function(req, res, next) {
     User.findByUsername(req.params.username).then(function(userDocument) {
@@ -12,8 +13,6 @@ exports.userExists = function(req, res, next) {
 }
 
 exports.mustBeLoggedIn = function(req, res, next) {
-
-
     if (req.session.user) {
         next();     // user is logged in, so we can proceed
     } else {
@@ -22,6 +21,15 @@ exports.mustBeLoggedIn = function(req, res, next) {
             res.redirect('/');
         });
     };
+}
+
+exports.apiMustBeLoggedIn = function(req, res, next){
+    try {
+        req.apiUser = jsontokens.verify(req.body.token, process.env.JWTSECRET);
+        next();
+    } catch {
+        res.json("El token no es válido.")
+    }
 }
 
 exports.profileTabs = async function(req, res, next) {
@@ -67,7 +75,7 @@ exports.apiLogin = function(req, res) {
     let user = new User(req.body);
     user.login().then(function(result){
         // this next line sets what info is saved to the session
-        res.json("Buen trabajo, ingresaste un username y password.");
+        res.json(jsontokens.sign({_id: user.data._id}, process.env.JWTSECRET,{expiresIn: "5d"}));
     }).catch(function(error){
         // when promise doesn't resolve and rejects this runs.
         res.json("Lo siento, no pasas chavo");
@@ -153,7 +161,6 @@ exports.viewProfileFollowings = async function(req, res) {
     try {
         // get the list of the users that the profile is following
         let following = await Follow.getFollowingById(req.profileUser._id);
-        console.log("Found following w/o problem");
         res.render('profile-following', {
             currentPage: 'following',
             following: following,
@@ -180,4 +187,15 @@ exports.doesUsernameExist = function(req, res) {
 exports.doesEmailExist = async function(req, res) {
     let emailBool = await User.doesEmailExist(req.body.email);
     res.json(emailBool);
+}
+
+exports.apiGetPostsByUsername = async function(req, res) {
+    try {
+        let authorDoc = await User.findByUsername(req.params.username);
+        let posts = await Post.findByAuthorId(authorDoc._id);
+        console.log("Succesfully found posts");
+        res.json(posts);
+    } catch (err){
+        res.json("Lo siento, usuario es inválido o no existe: " +err);
+    }
 }
